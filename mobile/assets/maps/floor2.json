@@ -1,0 +1,841 @@
+{
+ "_note": "ตัวอย่างผังชั้น 2 (พิกัดเป็นเมตร โถงกลางอยู่ที่ y=0) ต้องวัดหน้างานจริงแล้วแก้ไฟล์นี้",
+ "project_uuid": "44BC8758-5427-4729-B840-3AEA56C2B4FB",
+ "floor": {
+  "floor_id": "F2",
+  "building_name": "อาคาร ICT มหาวิทยาลัยมหิดล",
+  "floor_number": 2,
+  "label": "ชั้น 2",
+  "map_version": 1,
+  "width_m": 48,
+  "height_m": 24
+ },
+ "zones": [
+  {
+   "zone_id": "Z-CORR-W",
+   "zone_code": "Z-CORR-W",
+   "zone_name": "โถงกลาง ฝั่งตะวันตก",
+   "zone_type": "corridor",
+   "is_evacuation_route": 1,
+   "polygon": [
+    [
+     0,
+     -1.5
+    ],
+    [
+     9,
+     -1.5
+    ],
+    [
+     9,
+     1.5
+    ],
+    [
+     0,
+     1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-CORR-MID-W",
+   "zone_code": "Z-CORR-MID-W",
+   "zone_name": "โถงกลาง หน้าห้อง 203",
+   "zone_type": "corridor",
+   "is_evacuation_route": 1,
+   "polygon": [
+    [
+     9,
+     -1.5
+    ],
+    [
+     24.5,
+     -1.5
+    ],
+    [
+     24.5,
+     1.5
+    ],
+    [
+     9,
+     1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-CORR-MID",
+   "zone_code": "Z-CORR-MID",
+   "zone_name": "โถงกลาง หน้าห้อง 201",
+   "zone_type": "corridor",
+   "is_evacuation_route": 1,
+   "polygon": [
+    [
+     24.5,
+     -1.5
+    ],
+    [
+     32,
+     -1.5
+    ],
+    [
+     32,
+     1.5
+    ],
+    [
+     24.5,
+     1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-CORR-E",
+   "zone_code": "Z-CORR-E",
+   "zone_name": "โถงกลาง ฝั่งตะวันออก",
+   "zone_type": "corridor",
+   "is_evacuation_route": 1,
+   "polygon": [
+    [
+     32,
+     -1.5
+    ],
+    [
+     48,
+     -1.5
+    ],
+    [
+     48,
+     1.5
+    ],
+    [
+     32,
+     1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-STAIR-W",
+   "zone_code": "Z-STAIR-W",
+   "zone_name": "บันได W",
+   "zone_type": "stairs",
+   "is_evacuation_route": 1,
+   "polygon": [
+    [
+     0,
+     1.5
+    ],
+    [
+     8,
+     1.5
+    ],
+    [
+     8,
+     12
+    ],
+    [
+     0,
+     12
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-LAB212",
+   "zone_code": "Z-LAB212",
+   "zone_name": "Lab 212",
+   "zone_type": "room",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     8,
+     1.5
+    ],
+    [
+     23,
+     1.5
+    ],
+    [
+     23,
+     12
+    ],
+    [
+     8,
+     12
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-204",
+   "zone_code": "Z-204",
+   "zone_name": "ห้อง 204",
+   "zone_type": "room",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     23,
+     1.5
+    ],
+    [
+     32,
+     1.5
+    ],
+    [
+     32,
+     12
+    ],
+    [
+     23,
+     12
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-WC",
+   "zone_code": "Z-WC",
+   "zone_name": "ห้องน้ำ",
+   "zone_type": "restroom",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     32,
+     1.5
+    ],
+    [
+     39,
+     1.5
+    ],
+    [
+     39,
+     12
+    ],
+    [
+     32,
+     12
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-STAIR-E",
+   "zone_code": "Z-STAIR-E",
+   "zone_name": "บันได E",
+   "zone_type": "stairs",
+   "is_evacuation_route": 1,
+   "polygon": [
+    [
+     39,
+     1.5
+    ],
+    [
+     48,
+     1.5
+    ],
+    [
+     48,
+     12
+    ],
+    [
+     39,
+     12
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-202",
+   "zone_code": "Z-202",
+   "zone_name": "ห้อง 202",
+   "zone_type": "room",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     0,
+     -12
+    ],
+    [
+     10.5,
+     -12
+    ],
+    [
+     10.5,
+     -1.5
+    ],
+    [
+     0,
+     -1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-203",
+   "zone_code": "Z-203",
+   "zone_name": "ห้อง 203",
+   "zone_type": "room",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     10.5,
+     -12
+    ],
+    [
+     21.5,
+     -12
+    ],
+    [
+     21.5,
+     -1.5
+    ],
+    [
+     10.5,
+     -1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-201",
+   "zone_code": "Z-201",
+   "zone_name": "ห้อง 201",
+   "zone_type": "room",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     21.5,
+     -12
+    ],
+    [
+     31.5,
+     -12
+    ],
+    [
+     31.5,
+     -1.5
+    ],
+    [
+     21.5,
+     -1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-LIFT",
+   "zone_code": "Z-LIFT",
+   "zone_name": "ลิฟต์",
+   "zone_type": "lift",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     31.5,
+     -12
+    ],
+    [
+     38.5,
+     -12
+    ],
+    [
+     38.5,
+     -1.5
+    ],
+    [
+     31.5,
+     -1.5
+    ]
+   ]
+  },
+  {
+   "zone_id": "Z-PROF",
+   "zone_code": "Z-PROF",
+   "zone_name": "ห้องพักอาจารย์",
+   "zone_type": "room",
+   "is_evacuation_route": 0,
+   "polygon": [
+    [
+     38.5,
+     -12
+    ],
+    [
+     48,
+     -12
+    ],
+    [
+     48,
+     -1.5
+    ],
+    [
+     38.5,
+     -1.5
+    ]
+   ]
+  }
+ ],
+ "beacons": [
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-1",
+   "label": "บันไดหนีไฟ W",
+   "zone_id": "Z-STAIR-W",
+   "major": 2,
+   "minor": 1,
+   "pos_x": 4,
+   "pos_y": 4,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-2",
+   "label": "โถงฝั่งตะวันตก",
+   "zone_id": "Z-CORR-W",
+   "major": 2,
+   "minor": 2,
+   "pos_x": 9,
+   "pos_y": 0,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-3",
+   "label": "ใน Lab 212",
+   "zone_id": "Z-LAB212",
+   "major": 2,
+   "minor": 3,
+   "pos_x": 15,
+   "pos_y": 5,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-4",
+   "label": "โถงหน้าห้อง 203",
+   "zone_id": "Z-CORR-MID-W",
+   "major": 2,
+   "minor": 4,
+   "pos_x": 16.5,
+   "pos_y": 0,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-5",
+   "label": "โถงหน้าห้อง 204",
+   "zone_id": "Z-CORR-MID",
+   "major": 2,
+   "minor": 5,
+   "pos_x": 24.5,
+   "pos_y": 0,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-6",
+   "label": "ในห้อง 204",
+   "zone_id": "Z-204",
+   "major": 2,
+   "minor": 6,
+   "pos_x": 28,
+   "pos_y": 5,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-7",
+   "label": "หน้าลิฟต์",
+   "zone_id": "Z-CORR-E",
+   "major": 2,
+   "minor": 7,
+   "pos_x": 35,
+   "pos_y": 0,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-8",
+   "label": "หน้าห้องน้ำ",
+   "zone_id": "Z-WC",
+   "major": 2,
+   "minor": 8,
+   "pos_x": 37,
+   "pos_y": 4,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-9",
+   "label": "ห้องพักอาจารย์",
+   "zone_id": "Z-PROF",
+   "major": 2,
+   "minor": 9,
+   "pos_x": 43,
+   "pos_y": -4,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  },
+  {
+   "beacon_uid": "44BC8758-5427-4729-B840-3AEA56C2B4FB-2-10",
+   "label": "บันไดหนีไฟ E",
+   "zone_id": "Z-STAIR-E",
+   "major": 2,
+   "minor": 10,
+   "pos_x": 43.8,
+   "pos_y": 4,
+   "tx_power": -8,
+   "rssi_1m": -59,
+   "path_loss_n": 2.5
+  }
+ ],
+ "nodes": [
+  {
+   "node_id": "EXIT_W",
+   "zone_id": "Z-STAIR-W",
+   "node_type": "exit",
+   "label": "บันไดหนีไฟ W",
+   "pos_x": 4,
+   "pos_y": 6,
+   "is_exit": 1,
+   "exit_priority": 2
+  },
+  {
+   "node_id": "EXIT_E",
+   "zone_id": "Z-STAIR-E",
+   "node_type": "exit",
+   "label": "บันไดหนีไฟ E",
+   "pos_x": 43.8,
+   "pos_y": 6,
+   "is_exit": 1,
+   "exit_priority": 1
+  },
+  {
+   "node_id": "LIFT",
+   "zone_id": "Z-LIFT",
+   "node_type": "lift",
+   "label": "ลิฟต์",
+   "pos_x": 35,
+   "pos_y": -6,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C01",
+   "zone_id": "Z-CORR-W",
+   "node_type": "corridor",
+   "label": "โถงหน้าบันได W",
+   "pos_x": 4,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C02",
+   "zone_id": "Z-CORR-MID-W",
+   "node_type": "corridor",
+   "label": "โถงหน้า Lab 212",
+   "pos_x": 10,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C03",
+   "zone_id": "Z-CORR-MID-W",
+   "node_type": "corridor",
+   "label": "โถงหน้าห้อง 203",
+   "pos_x": 16.5,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C04",
+   "zone_id": "Z-CORR-MID",
+   "node_type": "corridor",
+   "label": "โถงหน้าห้อง 204",
+   "pos_x": 24.5,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C05",
+   "zone_id": "Z-CORR-MID",
+   "node_type": "corridor",
+   "label": "โถงหน้าห้อง 201",
+   "pos_x": 28.5,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C06",
+   "zone_id": "Z-CORR-E",
+   "node_type": "corridor",
+   "label": "หน้าลิฟต์",
+   "pos_x": 35,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C07",
+   "zone_id": "Z-CORR-E",
+   "node_type": "corridor",
+   "label": "หน้าห้องน้ำ",
+   "pos_x": 38,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "C08",
+   "zone_id": "Z-CORR-E",
+   "node_type": "corridor",
+   "label": "โถงหน้าบันได E",
+   "pos_x": 43.8,
+   "pos_y": 0,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_LAB",
+   "zone_id": "Z-LAB212",
+   "node_type": "door",
+   "label": "ประตู Lab 212",
+   "pos_x": 15,
+   "pos_y": 3,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_204",
+   "zone_id": "Z-204",
+   "node_type": "door",
+   "label": "ประตูห้อง 204",
+   "pos_x": 28,
+   "pos_y": 3,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_WC",
+   "zone_id": "Z-WC",
+   "node_type": "door",
+   "label": "ประตูห้องน้ำ",
+   "pos_x": 37,
+   "pos_y": 3,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_202",
+   "zone_id": "Z-202",
+   "node_type": "door",
+   "label": "ประตูห้อง 202",
+   "pos_x": 6,
+   "pos_y": -3,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_203",
+   "zone_id": "Z-203",
+   "node_type": "door",
+   "label": "ประตูห้อง 203",
+   "pos_x": 16.5,
+   "pos_y": -3,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_201",
+   "zone_id": "Z-201",
+   "node_type": "door",
+   "label": "ประตูห้อง 201",
+   "pos_x": 26.5,
+   "pos_y": -3,
+   "is_exit": 0,
+   "exit_priority": null
+  },
+  {
+   "node_id": "D_PROF",
+   "zone_id": "Z-PROF",
+   "node_type": "door",
+   "label": "ประตูห้องพักอาจารย์",
+   "pos_x": 43,
+   "pos_y": -3,
+   "is_exit": 0,
+   "exit_priority": null
+  }
+ ],
+ "edges": [
+  {
+   "edge_id": "E01",
+   "from_node": "C01",
+   "to_node": "C02",
+   "zone_id": "Z-CORR-W",
+   "distance_m": 6.0,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E02",
+   "from_node": "C02",
+   "to_node": "C03",
+   "zone_id": "Z-CORR-MID-W",
+   "distance_m": 6.5,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E03",
+   "from_node": "C03",
+   "to_node": "C04",
+   "zone_id": "Z-CORR-MID-W",
+   "distance_m": 8.0,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E04",
+   "from_node": "C04",
+   "to_node": "C05",
+   "zone_id": "Z-CORR-MID",
+   "distance_m": 4.0,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E05",
+   "from_node": "C05",
+   "to_node": "C06",
+   "zone_id": "Z-CORR-MID",
+   "distance_m": 6.5,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E06",
+   "from_node": "C06",
+   "to_node": "C07",
+   "zone_id": "Z-CORR-E",
+   "distance_m": 3.0,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E07",
+   "from_node": "C07",
+   "to_node": "C08",
+   "zone_id": "Z-CORR-E",
+   "distance_m": 5.8,
+   "edge_type": "corridor",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E08",
+   "from_node": "C01",
+   "to_node": "EXIT_W",
+   "zone_id": "Z-STAIR-W",
+   "distance_m": 6.0,
+   "edge_type": "stairs",
+   "is_bidirectional": 1,
+   "base_factor": 1.2
+  },
+  {
+   "edge_id": "E09",
+   "from_node": "C08",
+   "to_node": "EXIT_E",
+   "zone_id": "Z-STAIR-E",
+   "distance_m": 6.0,
+   "edge_type": "stairs",
+   "is_bidirectional": 1,
+   "base_factor": 1.2
+  },
+  {
+   "edge_id": "E10",
+   "from_node": "C06",
+   "to_node": "LIFT",
+   "zone_id": "Z-LIFT",
+   "distance_m": 6.0,
+   "edge_type": "lift",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E11",
+   "from_node": "C03",
+   "to_node": "D_LAB",
+   "zone_id": "Z-LAB212",
+   "distance_m": 3.35,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E12",
+   "from_node": "C05",
+   "to_node": "D_204",
+   "zone_id": "Z-204",
+   "distance_m": 3.04,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E13",
+   "from_node": "C07",
+   "to_node": "D_WC",
+   "zone_id": "Z-WC",
+   "distance_m": 3.16,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E14",
+   "from_node": "C01",
+   "to_node": "D_202",
+   "zone_id": "Z-202",
+   "distance_m": 3.61,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E15",
+   "from_node": "C03",
+   "to_node": "D_203",
+   "zone_id": "Z-203",
+   "distance_m": 3.0,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E16",
+   "from_node": "C05",
+   "to_node": "D_201",
+   "zone_id": "Z-201",
+   "distance_m": 3.61,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  },
+  {
+   "edge_id": "E17",
+   "from_node": "C08",
+   "to_node": "D_PROF",
+   "zone_id": "Z-PROF",
+   "distance_m": 3.1,
+   "edge_type": "door",
+   "is_bidirectional": 1,
+   "base_factor": 1.0
+  }
+ ]
+}
