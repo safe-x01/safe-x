@@ -19,9 +19,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _password = TextEditingController(text: '••••••••');
 
   static const _roles = [
-    (UserRole.student, 'นักศึกษา / บุคลากร', 'รับแจ้งเตือน รายงานเหตุ และอพยพ', Icons.person, SA.blue, SA.blueLight),
-    (UserRole.security, 'เจ้าหน้าที่ความปลอดภัย', 'ติดตามและตอบสนองเหตุการณ์', Icons.shield, SA.teal, SA.tealLight),
-    (UserRole.admin, 'ผู้ดูแลอาคาร', 'จัดการ Sensor และระบบ IoT', Icons.admin_panel_settings, SA.amberDark, SA.amberLight),
+    (
+      UserRole.student,
+      'นักศึกษา / บุคลากร',
+      'รับแจ้งเตือน รายงานเหตุ และอพยพ',
+      Icons.person,
+      SA.blue,
+      SA.blueLight
+    ),
+    (
+      UserRole.security,
+      'เจ้าหน้าที่ความปลอดภัย',
+      'ติดตามและตอบสนองเหตุการณ์',
+      Icons.shield,
+      SA.teal,
+      SA.tealLight
+    ),
   ];
 
   @override
@@ -36,21 +49,37 @@ class _LoginScreenState extends State<LoginScreen> {
             const Icon(Icons.verified_user, color: Colors.white, size: 56),
             const SizedBox(height: 12),
             const Text('SafeAlert ICT',
-                textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800)),
             const Text('แจ้งเตือนภัยในอาคารแบบเรียลไทม์',
-                textAlign: TextAlign.center, style: TextStyle(color: Color(0xFFBFD3E6), fontSize: 14)),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFFBFD3E6), fontSize: 14)),
             const SizedBox(height: 28),
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: SA.bg, borderRadius: BorderRadius.circular(24)),
+              decoration: BoxDecoration(
+                  color: SA.bg, borderRadius: BorderRadius.circular(24)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('ยินดีต้อนรับ', textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                  const Text('ยินดีต้อนรับ',
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 16),
-                  TextField(controller: _email, decoration: const InputDecoration(prefixIcon: Icon(Icons.mail_outline))),
+                  TextField(
+                      controller: _email,
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.mail_outline))),
                   const SizedBox(height: 8),
-                  TextField(controller: _password, obscureText: true, decoration: const InputDecoration(prefixIcon: Icon(Icons.lock_outline))),
+                  TextField(
+                      controller: _password,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.lock_outline))),
                   const SizedBox(height: 16),
                   FilledButton(
                     style: FilledButton.styleFrom(backgroundColor: SA.navy),
@@ -58,7 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: const Text('เข้าสู่ระบบ'),
                   ),
                   const SizedBox(height: 16),
-                  const Text('เลือกบทบาทของคุณ', textAlign: TextAlign.center, style: TextStyle(color: SA.muted)),
+                  const Text('เลือกบทบาทของคุณ',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: SA.muted)),
                   const SizedBox(height: 8),
                   for (final r in _roles) _roleCard(r),
                 ],
@@ -79,22 +110,30 @@ class _LoginScreenState extends State<LoginScreen> {
         onTap: () => setState(() => _role = r.$1),
         child: Container(
           padding: const EdgeInsets.all(12),
-          decoration: saCard(color: selected ? SA.blueLight : SA.card, border: selected ? SA.blue : SA.border),
+          decoration: saCard(
+              color: selected ? SA.blueLight : SA.card,
+              border: selected ? SA.blue : SA.border),
           child: Row(children: [
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(color: r.$6, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                  color: r.$6, borderRadius: BorderRadius.circular(10)),
               child: Icon(r.$4, color: r.$5),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(r.$2, style: const TextStyle(fontWeight: FontWeight.w800)),
-                Text(r.$3, style: const TextStyle(color: SA.text2, fontSize: 12)),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(r.$2,
+                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                    Text(r.$3,
+                        style: const TextStyle(color: SA.text2, fontSize: 12)),
+                  ]),
             ),
-            Icon(selected ? Icons.check_circle : Icons.radio_button_unchecked, color: selected ? SA.blue : SA.muted),
+            Icon(selected ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: selected ? SA.blue : SA.muted),
           ]),
         ),
       ),
@@ -102,8 +141,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() {
-    final name = switch (_role) { UserRole.student => 'ภคินธร', UserRole.security => 'สมชาย', UserRole.admin => 'ปิติ' };
+    final name = switch (_role) {
+      UserRole.student => 'ภคินธร',
+      UserRole.security => 'ปิติ',
+      UserRole.admin => 'ปิติ'
+    };
     AppScope.of(context).login(_role, name);
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeShell()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => const HomeShell()));
   }
 }

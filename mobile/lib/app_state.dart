@@ -99,7 +99,8 @@ class AppState extends ChangeNotifier {
     startScanning();
   }
 
-  bool get isAdmin => role == UserRole.admin;
+  /// Figma has 2 roles: user and เจ้าหน้าที่ความปลอดภัย; the staff role uses the admin screens (ad02-ad14).
+  bool get isAdmin => role == UserRole.security || role == UserRole.admin;
 
   // ---------------------------------------------------------------- scanning
   Future<void> startScanning({bool fast = false}) async {
