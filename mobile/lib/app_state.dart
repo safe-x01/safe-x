@@ -8,6 +8,7 @@ import 'core/config.dart';
 import 'data/db/app_database.dart';
 import 'data/models.dart';
 import 'data/repositories/map_repository.dart';
+import 'data/repositories/notification_repository.dart';
 import 'data/repositories/outbox_repository.dart';
 import 'navigation/route_planner.dart';
 import 'positioning/positioning_engine.dart';
@@ -33,6 +34,10 @@ class AppState extends ChangeNotifier {
   late BeaconScanner scanner;
   StreamSubscription<ScanWindow>? _scanSub;
 
+  // page 05: NOTIFICATION_INBOX, newest first
+  late NotificationRepository notices;
+  List<AppNotice> inbox = const [];
+
   UserRole role = UserRole.student;
   String displayName = 'ผู้ใช้';
   ScanMode mode = ScanMode.normal;
@@ -54,8 +59,12 @@ class AppState extends ChangeNotifier {
   static Future<AppState> create() async {
     final db = await AppDatabase.open();
     final outbox = OutboxRepository(db);
-    final s = AppState._(db, MapRepository(db), outbox, SyncService(db, outbox));
+    final s =
+        AppState._(db, MapRepository(db), outbox, SyncService(db, outbox));
     await s._loadFloor();
+    s.notices = NotificationRepository(db);
+    if (AppConfig.useSimulatedBeacons) await s.notices.resetDemo();
+    s.inbox = await s.notices.all();
     return s;
   }
 
@@ -63,7 +72,8 @@ class AppState extends ChangeNotifier {
     const floorId = 'F2';
     if (!await db.hasFloor(floorId)) {
       // first start: import the floor bundled with the app (later: GET /sync/static)
-      await db.importFloorPackage(await rootBundle.loadString(AppConfig.bundledFloorAsset));
+      await db.importFloorPackage(
+          await rootBundle.loadString(AppConfig.bundledFloorAsset));
     }
     floor = (await maps.loadFloor(floorId))!;
     _engine = PositioningEngine(floor);
@@ -72,7 +82,11 @@ class AppState extends ChangeNotifier {
         ? SimulatedBeaconScanner(
             beacons: floor.beacons.values.toList(),
             // demo walk: from Lab 212's door to the corridor in front of room 201, then stand there
-            path: [floor.nodes['D_LAB']!.pos, floor.nodes['C03']!.pos, floor.nodes['C05']!.pos],
+            path: [
+              floor.nodes['D_LAB']!.pos,
+              floor.nodes['C03']!.pos,
+              floor.nodes['C05']!.pos
+            ],
           )
         : BlePlusBeaconScanner();
   }
@@ -108,8 +122,10 @@ class AppState extends ChangeNotifier {
     await maps.saveFix(f);
 
     // upload: on zone change in normal mode, every 5 s during an incident
-    final dueByTime = _lastUpload == null || now.difference(_lastUpload!) >= AppConfig.locationUploadInIncident;
-    if ((mode == ScanMode.normal && zoneChanged) || (mode != ScanMode.normal && dueByTime)) {
+    final dueByTime = _lastUpload == null ||
+        now.difference(_lastUpload!) >= AppConfig.locationUploadInIncident;
+    if ((mode == ScanMode.normal && zoneChanged) ||
+        (mode != ScanMode.normal && dueByTime)) {
       _lastUpload = now;
       unawaited(sync.uploadLocation(f));
     }
@@ -117,9 +133,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get lostSignal => _lastHeard != null && DateTime.now().difference(_lastHeard!) > const Duration(seconds: 5);
+  bool get lostSignal =>
+      _lastHeard != null &&
+      DateTime.now().difference(_lastHeard!) > const Duration(seconds: 5);
 
-  String get zoneName => fix == null ? 'กำลังหาตำแหน่ง…' : (floor.zones[fix!.zoneId]?.name ?? fix!.zoneId);
+  String get zoneName => fix == null
+      ? 'กำลังหาตำแหน่ง…'
+      : (floor.zones[fix!.zoneId]?.name ?? fix!.zoneId);
 
   // ---------------------------------------------------------------- incident
   /// Demo button / push handler: "ไฟไหม้ห้อง 203, ควันในโถงหน้าห้อง 203".
@@ -135,8 +155,42 @@ class AppState extends ChangeNotifier {
       await maps.setHazard(e.key, e.value);
     }
     mode = ScanMode.incident;
+    final what = switch (type) {
+      IncidentMode.fire => 'ตรวจพบไฟไหม้',
+      IncidentMode.gas => 'ตรวจพบแก๊สรั่ว',
+      IncidentMode.quake => 'แผ่นดินไหว',
+      IncidentMode.none => 'เหตุการณ์',
+    };
+    await notices.add(
+      category: 'incident',
+      title: '$what ${floor.zones[zoneId]?.name ?? zoneId}',
+      body:
+          '${floor.label} อาคาร ICT · ออกทางบันไดหนีไฟ ห้ามใช้ลิฟต์\n✓ ยืนยันโดย MQ-2 และกล้อง AI',
+      priority: 'critical',
+    );
+    inbox = await notices.all();
     await startScanning(fast: true);
     replan();
+  }
+
+  // ---------------------------------------------------------------- notifications (page 05)
+  int get unreadCount => inbox.where((n) => !n.isRead).length;
+  int countPriority(String p) => inbox.where((n) => n.priority == p).length;
+
+  Future<void> markRead(AppNotice n) async {
+    if (n.isRead) return;
+    await notices.markRead(n.id);
+    inbox = await notices.all();
+    notifyListeners();
+  }
+
+  /// "รับทราบ" on an emergency card: mark read and tell the server this person got the alert.
+  Future<void> acknowledge(AppNotice n) async {
+    await notices.markRead(n.id);
+    await outbox.addAck(ackStatus: 'received', zoneId: fix?.zoneId);
+    unawaited(sync.pushOutbox());
+    inbox = await notices.all();
+    notifyListeners();
   }
 
   Future<void> simulateFire() => onIncident(
@@ -148,7 +202,8 @@ class AppState extends ChangeNotifier {
   /// Routes A / B / C from where the user is now (page 07).
   void replan() {
     final here = fix?.pos ?? floor.nodes['C05']!.pos;
-    plan = planner.plan(planner.nearestNode(here), floor.hazards, mode: incident);
+    plan =
+        planner.plan(planner.nearestNode(here), floor.hazards, mode: incident);
     notifyListeners();
   }
 
@@ -164,7 +219,10 @@ class AppState extends ChangeNotifier {
     final s = scanner;
     if (s is SimulatedBeaconScanner) {
       // the simulated person now walks the chosen route
-      s.restartAlong([if (fix != null) fix!.pos, ...route!.nodeIds.map((id) => floor.nodes[id]!.pos)]);
+      s.restartAlong([
+        if (fix != null) fix!.pos,
+        ...route!.nodeIds.map((id) => floor.nodes[id]!.pos)
+      ]);
     }
     notifyListeners();
   }
@@ -179,7 +237,8 @@ class AppState extends ChangeNotifier {
     }
     // next step reached?
     while (stepIndex < steps.length - 1 &&
-        f.pos.dist(floor.nodes[steps[stepIndex].atNodeId]!.pos) <= AppConfig.arriveMeters) {
+        f.pos.dist(floor.nodes[steps[stepIndex].atNodeId]!.pos) <=
+            AppConfig.arriveMeters) {
       stepIndex++;
     }
     // off route for 3 s, or hazard changed -> plan again
@@ -200,10 +259,15 @@ class AppState extends ChangeNotifier {
     final r = route, f = fix;
     if (r == null || f == null) return 0;
     // from the user to the next step node, then along the rest of the path
-    final idx = r.nodeIds.indexOf(steps.isEmpty ? r.exitNodeId : steps[stepIndex].atNodeId);
-    var d = f.pos.dist(floor.nodes[r.nodeIds[idx < 0 ? r.nodeIds.length - 1 : idx]]!.pos);
-    for (var i = (idx < 0 ? r.nodeIds.length - 1 : idx) + 1; i < r.nodeIds.length; i++) {
-      d += floor.nodes[r.nodeIds[i - 1]]!.pos.dist(floor.nodes[r.nodeIds[i]]!.pos);
+    final idx = r.nodeIds
+        .indexOf(steps.isEmpty ? r.exitNodeId : steps[stepIndex].atNodeId);
+    var d = f.pos.dist(
+        floor.nodes[r.nodeIds[idx < 0 ? r.nodeIds.length - 1 : idx]]!.pos);
+    for (var i = (idx < 0 ? r.nodeIds.length - 1 : idx) + 1;
+        i < r.nodeIds.length;
+        i++) {
+      d += floor.nodes[r.nodeIds[i - 1]]!.pos
+          .dist(floor.nodes[r.nodeIds[i]]!.pos);
     }
     return d;
   }
@@ -223,7 +287,8 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> sos({String? message}) async {
-    await outbox.addAck(ackStatus: 'sos', zoneId: fix?.zoneId, message: message);
+    await outbox.addAck(
+        ackStatus: 'sos', zoneId: fix?.zoneId, message: message);
     unawaited(sync.pushOutbox());
     if (mode == ScanMode.normal) {
       mode = ScanMode.incident;
@@ -232,7 +297,10 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> sendReport({required String type, required String severity, String? description}) async {
+  Future<String> sendReport(
+      {required String type,
+      required String severity,
+      String? description}) async {
     final id = await outbox.addReport(
       reportType: type,
       severity: severity,

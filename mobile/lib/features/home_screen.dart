@@ -7,8 +7,10 @@ import '../navigation/route_planner.dart';
 
 /// Page 02 (user) / ad02 (admin). Same layout as the Figma screen.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onOpenMap});
+  const HomeScreen(
+      {super.key, required this.onOpenMap, required this.onOpenNotifications});
   final VoidCallback onOpenMap;
+  final VoidCallback onOpenNotifications;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,7 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       children: [
-        _Header(s: s),
+        _Header(s: s, onBell: onOpenNotifications),
         const SizedBox(height: 16),
         _LocationCard(s: s),
         if (s.incident != IncidentMode.none) ...[
@@ -25,8 +27,7 @@ class HomeScreen extends StatelessWidget {
         ],
         const SizedBox(height: 20),
         _SectionTitle('เหตุการณ์ในอาคาร',
-            action: 'ดูทั้งหมด',
-            onAction: () => _todo(context, 'หน้า 05 แจ้งเตือน')),
+            action: 'ดูทั้งหมด', onAction: onOpenNotifications),
         const SizedBox(height: 10),
         _IncidentCounts(s: s),
         const SizedBox(height: 12),
@@ -120,8 +121,9 @@ class HomeScreen extends StatelessWidget {
 
 // ---------------------------------------------------------------- header
 class _Header extends StatelessWidget {
-  const _Header({required this.s});
+  const _Header({required this.s, required this.onBell});
   final AppState s;
+  final VoidCallback onBell;
 
   @override
   Widget build(BuildContext context) {
@@ -155,16 +157,19 @@ class _Header extends StatelessWidget {
         ]),
       ),
       Stack(clipBehavior: Clip.none, children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-              color: SA.card,
-              shape: BoxShape.circle,
-              border: Border.all(color: SA.border)),
-          child: const Icon(Icons.notifications_none_rounded, color: SA.text),
+        Material(
+          color: SA.card,
+          shape: const CircleBorder(side: BorderSide(color: SA.border)),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onBell,
+            child: const SizedBox(
+                width: 44,
+                height: 44,
+                child: Icon(Icons.notifications_none_rounded, color: SA.text)),
+          ),
         ),
-        if (s.incident != IncidentMode.none)
+        if (s.unreadCount > 0)
           Positioned(
             right: 2,
             top: 2,
@@ -317,31 +322,30 @@ class _IncidentCounts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: count from INCIDENT_CACHE by severity once sync is connected
-    final critical = s.incident == IncidentMode.none ? 0 : 1;
+    // counted from NOTIFICATION_INBOX by priority
     return Row(children: [
       Expanded(
           child: _CountTile(
               icon: Icons.local_fire_department,
               color: SA.red,
               bg: SA.redLight,
-              value: critical,
+              value: s.countPriority('critical'),
               label: 'วิกฤต')),
       const SizedBox(width: 10),
-      const Expanded(
+      Expanded(
           child: _CountTile(
               icon: Icons.warning_amber_rounded,
               color: SA.amber,
               bg: SA.amberLight,
-              value: 0,
+              value: s.countPriority('high'),
               label: 'เฝ้าระวัง')),
       const SizedBox(width: 10),
-      const Expanded(
+      Expanded(
           child: _CountTile(
               icon: Icons.info_rounded,
               color: SA.blue,
               bg: SA.blueLight,
-              value: 0,
+              value: s.countPriority('info'),
               label: 'ข้อมูล')),
     ]);
   }
