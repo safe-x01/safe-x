@@ -102,6 +102,36 @@ class AppState extends ChangeNotifier {
   /// Figma has 2 roles: user and เจ้าหน้าที่ความปลอดภัย; the staff role uses the admin screens (ad02-ad14).
   bool get isAdmin => role == UserRole.security || role == UserRole.admin;
 
+  /// Page 08 "ออกจากระบบ": stop scanning and clear this session, back to a clean state.
+  /// TODO: when real login exists, also delete the token from flutter_secure_storage.
+  Future<void> logout() async {
+    await _scanSub?.cancel();
+    _scanSub = null;
+    await scanner.stop();
+    // clear the incident (demo hazards go back to normal)
+    for (final z in floor.zones.values) {
+      if (z.hazardLevel != Hazard.normal) {
+        z.hazardLevel = Hazard.normal;
+        await maps.setHazard(z.id, Hazard.normal);
+      }
+    }
+    incident = IncidentMode.none;
+    incidentZoneId = null;
+    plan = null;
+    route = null;
+    steps = const [];
+    stepIndex = 0;
+    arrived = false;
+    mode = ScanMode.normal;
+    fix = null;
+    _lastHeard = null;
+    role = UserRole.student;
+    displayName = 'ผู้ใช้';
+    if (AppConfig.useSimulatedBeacons) await notices.resetDemo();
+    inbox = await notices.all();
+    notifyListeners();
+  }
+
   // ---------------------------------------------------------------- scanning
   Future<void> startScanning({bool fast = false}) async {
     await _scanSub?.cancel();

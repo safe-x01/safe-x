@@ -4,8 +4,8 @@ import '../core/theme.dart';
 import '../main.dart';
 import 'home_screen.dart';
 import 'map_screen.dart';
+import 'more_screen.dart';
 import 'notifications_screen.dart';
-import 'placeholder_screen.dart';
 
 /// Bottom bar shared by user and admin: หน้าหลัก · แผนที่ · SOS · แจ้งเตือน · เพิ่มเติม.
 class HomeShell extends StatefulWidget {
@@ -27,8 +27,7 @@ class _HomeShellState extends State<HomeShell> {
       const MapScreen(),
       const SizedBox.shrink(), // SOS is a button, not a page
       NotificationsScreen(onOpenMap: () => setState(() => _tab = 1)),
-      const PlaceholderScreen(
-          title: 'เพิ่มเติม', note: 'หน้า 08 / ad05 · อ่านจาก LOCAL_PROFILE'),
+      const MoreScreen(),
     ];
     final unread = AppScope.of(context).unreadCount;
     return Scaffold(
