@@ -149,6 +149,7 @@ class AppState extends ChangeNotifier {
         displayName: name,
         role: r.name,
         email: email);
+    displayName = p['display_name'] as String;
     employeeCode = p['employee_code'] as String;
     phone = p['phone'] as String?;
     emergencyContact = p['emergency_contact'] as String?;
@@ -162,6 +163,29 @@ class AppState extends ChangeNotifier {
   }
 
   String get _userId => email.isEmpty ? displayName : email;
+
+  /// Page 08b "แก้ไขโปรไฟล์": saves name, phone and emergency contact into LOCAL_PROFILE.
+  /// The emergency contact is kept in one column as "name · phone".
+  Future<void> updateProfile({
+    required String name,
+    required String phone,
+    required String contactName,
+    required String contactPhone,
+  }) async {
+    final contact =
+        [contactName, contactPhone].where((x) => x.isNotEmpty).join(' · ');
+    final id =
+        _userId; // read before the name changes (the id can be the name when there is no email)
+    displayName = name;
+    this.phone = phone.isEmpty ? null : phone;
+    emergencyContact = contact.isEmpty ? null : contact;
+    await profiles.update(id, {
+      'display_name': name,
+      'phone': this.phone,
+      'emergency_contact': emergencyContact,
+    });
+    notifyListeners();
+  }
 
   Future<void> setLanguage(String l) async {
     lang = l;

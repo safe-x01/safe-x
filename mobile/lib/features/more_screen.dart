@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_state.dart';
 import '../core/theme.dart';
 import '../main.dart';
+import 'edit_profile.dart';
 import 'login_screen.dart';
 
 /// Page 08: โปรไฟล์ (tab "เพิ่มเติม"). Reads and saves LOCAL_PROFILE through AppState.
@@ -36,8 +37,8 @@ class MoreScreen extends StatelessWidget {
               side: const BorderSide(color: SA.border),
               shape: const StadiumBorder(),
             ),
-            onPressed: () =>
-                _todo(context, t('แก้ไขโปรไฟล์', 'Edit profile'), s),
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const EditProfileScreen())),
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: Text(t('แก้ไข', 'Edit'),
                 style: const TextStyle(fontWeight: FontWeight.w700)),

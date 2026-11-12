@@ -22,13 +22,13 @@ class ProfileRepository {
         {
           'user_id': userId,
           'employee_code': _codeFrom(email),
-          'display_name': displayName,
           'role': role,
           'email': email,
           'updated_at': now,
         },
-        // settings are only set on the first login; later logins keep what the user chose
+        // name and settings are only set on the first login; later logins keep what the user edited
         insertOnly: {
+          'display_name': displayName,
           'language': 'th',
           'ble_enabled': 1,
           'alert_sound': 1,
