@@ -27,18 +27,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       children: [
-        const Text('การแจ้งเตือน',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+        Text(s.tr('การแจ้งเตือน', 'Notifications'),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
         const SizedBox(height: 12),
         Row(children: [
           _FilterChip(
-              label: 'ทั้งหมด',
+              label: s.tr('ทั้งหมด', 'All'),
               selected: !_onlyEmergency,
               color: SA.navy,
               onTap: () => setState(() => _onlyEmergency = false)),
           const SizedBox(width: 8),
           _FilterChip(
-            label: 'ฉุกเฉิน ($emergencyCount)',
+            label: '${s.tr('ฉุกเฉิน', 'Emergency')} ($emergencyCount)',
             selected: _onlyEmergency,
             color: SA.red,
             onTap: () => setState(() => _onlyEmergency = true),
@@ -46,11 +46,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ]),
         const SizedBox(height: 14),
         if (list.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 48),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 48),
             child: Center(
-                child: Text('ยังไม่มีการแจ้งเตือน',
-                    style: TextStyle(color: SA.muted))),
+                child: Text(
+                    s.tr('ยังไม่มีการแจ้งเตือน', 'No notifications yet'),
+                    style: const TextStyle(color: SA.muted))),
           ),
         for (final n in list) ...[
           _card(context, s, n),
@@ -82,35 +83,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     };
   }
 
-  void _detailSheet(BuildContext context, AppNotice n) =>
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (_) => SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(n.title,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 4),
-                  Text(timeAgo(n.receivedAt),
-                      style: const TextStyle(color: SA.muted, fontSize: 12)),
-                  const SizedBox(height: 12),
-                  Text(n.text,
-                      style: const TextStyle(
-                          color: SA.text2, fontSize: 14, height: 1.4)),
-                ]),
-          ),
+  void _detailSheet(BuildContext context, AppNotice n) {
+    final s = AppScope.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(s.d(n.title),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                Text(timeAgo(n.receivedAt, en: s.lang == 'en'),
+                    style: const TextStyle(color: SA.muted, fontSize: 12)),
+                const SizedBox(height: 12),
+                Text(s.d(n.text),
+                    style: const TextStyle(
+                        color: SA.text2, fontSize: 14, height: 1.4)),
+              ]),
         ),
-      );
+      ),
+    );
+  }
 }
 
 /// "2 นาทีที่แล้ว" style. Shared with the home screen.
-String timeAgo(DateTime t, {bool suffix = false}) {
+String timeAgo(DateTime t, {bool suffix = false, bool en = false}) {
   final d = DateTime.now().difference(t);
+  if (en) {
+    final tail = suffix ? ' ago' : '';
+    if (d.inMinutes < 1) return 'just now';
+    if (d.inHours < 1) return '${d.inMinutes} min$tail';
+    if (d.inDays < 1) return '${d.inHours} h$tail';
+    return '${t.day}/${t.month}/${t.year}';
+  }
   final tail = suffix ? 'ที่แล้ว' : '';
   if (d.inMinutes < 1) return 'เมื่อสักครู่';
   if (d.inHours < 1) return '${d.inMinutes} นาที$tail';
@@ -165,6 +175,7 @@ class _EmergencyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppScope.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: saCard(
@@ -180,20 +191,20 @@ class _EmergencyCard extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                const Expanded(
-                    child: Text('แจ้งเตือนฉุกเฉิน',
-                        style: TextStyle(
+                Expanded(
+                    child: Text(s.tr('แจ้งเตือนฉุกเฉิน', 'Emergency alert'),
+                        style: const TextStyle(
                             color: SA.red,
                             fontSize: 12.5,
                             fontWeight: FontWeight.w700))),
-                Text(timeAgo(n.receivedAt, suffix: true),
+                Text(timeAgo(n.receivedAt, suffix: true, en: s.lang == 'en'),
                     style: const TextStyle(color: SA.text2, fontSize: 12)),
               ]),
               const SizedBox(height: 2),
-              Text(n.title,
+              Text(s.d(n.title),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w800)),
-              Text(n.text,
+              Text(s.d(n.text),
                   style: const TextStyle(color: SA.text2, fontSize: 13)),
               if (n.check != null) ...[
                 const SizedBox(height: 8),
@@ -208,7 +219,7 @@ class _EmergencyCard extends StatelessWidget {
                     const Icon(Icons.check, color: SA.green, size: 15),
                     const SizedBox(width: 4),
                     Flexible(
-                        child: Text(n.check!,
+                        child: Text(s.d(n.check!),
                             style: const TextStyle(
                                 color: SA.green,
                                 fontSize: 12,
@@ -232,8 +243,8 @@ class _EmergencyCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: onDetail,
-              child: const Text('ดูรายละเอียด',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              child: Text(s.tr('ดูรายละเอียด', 'View details'),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ),
           const SizedBox(width: 10),
@@ -245,11 +256,11 @@ class _EmergencyCard extends StatelessWidget {
                     decoration: BoxDecoration(
                         color: SA.greenLight,
                         borderRadius: BorderRadius.circular(12)),
-                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.check_circle, color: SA.green, size: 18),
-                      SizedBox(width: 6),
-                      Text('รับทราบแล้ว',
-                          style: TextStyle(
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      const Icon(Icons.check_circle, color: SA.green, size: 18),
+                      const SizedBox(width: 6),
+                      Text(s.tr('รับทราบแล้ว', 'Acknowledged'),
+                          style: const TextStyle(
                               color: SA.green, fontWeight: FontWeight.w700)),
                     ]),
                   )
@@ -261,8 +272,8 @@ class _EmergencyCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: onAck,
-                    child: const Text('รับทราบ',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
+                    child: Text(s.tr('รับทราบ', 'Acknowledge'),
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
                   ),
           ),
         ]),
@@ -286,6 +297,7 @@ class _NormalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppScope.of(context);
     final (icon, fg, bg) = _look;
     return Material(
       color: SA.card,
@@ -315,7 +327,7 @@ class _NormalCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              n.title,
+                              s.d(n.title),
                               style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: n.isRead
@@ -323,12 +335,12 @@ class _NormalCard extends StatelessWidget {
                                       : FontWeight.w800),
                             ),
                           ),
-                          Text(timeAgo(n.receivedAt),
+                          Text(timeAgo(n.receivedAt, en: s.lang == 'en'),
                               style: const TextStyle(
                                   color: SA.text2, fontSize: 12)),
                         ]),
                     const SizedBox(height: 2),
-                    Text(n.text,
+                    Text(s.d(n.text),
                         style: const TextStyle(
                             color: SA.text2, fontSize: 13, height: 1.35)),
                     if (n.pill != null) ...[
@@ -339,7 +351,7 @@ class _NormalCard extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: SA.amberLight,
                             borderRadius: BorderRadius.circular(20)),
-                        child: Text(n.pill!,
+                        child: Text(s.d(n.pill!),
                             style: const TextStyle(
                                 color: SA.amberDark,
                                 fontSize: 12,
@@ -348,7 +360,7 @@ class _NormalCard extends StatelessWidget {
                     ],
                     if (n.meta != null) ...[
                       const SizedBox(height: 8),
-                      Text(n.meta!,
+                      Text(s.d(n.meta!),
                           style:
                               const TextStyle(color: SA.muted, fontSize: 11.5)),
                     ],
@@ -356,7 +368,7 @@ class _NormalCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: onLink,
-                        child: Text(n.link!,
+                        child: Text(s.d(n.link!),
                             style: const TextStyle(
                                 color: SA.blue,
                                 fontSize: 13,
@@ -379,6 +391,7 @@ class _ChannelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppScope.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: saCard(color: SA.blueLight, border: const Color(0xFFC9DAFB)),
@@ -394,10 +407,10 @@ class _ChannelCard extends StatelessWidget {
         Expanded(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(n.title,
+            Text(s.d(n.title),
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-            Text(n.text,
+            Text(s.d(n.text),
                 style: const TextStyle(color: SA.text2, fontSize: 12.5)),
           ]),
         ),

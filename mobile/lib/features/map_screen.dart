@@ -51,8 +51,9 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(height: 12),
           _IncidentBanner(
               s: s,
-              exitLabel:
-                  shown == null ? null : s.floor.nodes[shown.exitNodeId]?.label,
+              exitLabel: shown == null
+                  ? null
+                  : s.d(s.floor.nodes[shown.exitNodeId]?.label ?? ''),
               onTap: () => _routesSheet(context, s)),
         ],
         const SizedBox(height: 12),
@@ -77,12 +78,14 @@ class _MapScreenState extends State<MapScreen> {
     return Row(children: [
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('แผนที่อาคาร ICT',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          Text(s.tr('แผนที่อาคาร ICT', 'ICT Building map'),
+              style:
+                  const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
           Text(
               ago == null
-                  ? 'กำลังหาตำแหน่ง…'
-                  : 'อัปเดตล่าสุด $ago วินาทีที่แล้ว',
+                  ? s.tr('กำลังหาตำแหน่ง…', 'Locating…')
+                  : s.tr(
+                      'อัปเดตล่าสุด $ago วินาทีที่แล้ว', 'Updated $ago s ago'),
               style: const TextStyle(color: SA.text2, fontSize: 12.5)),
         ]),
       ),
@@ -90,7 +93,9 @@ class _MapScreenState extends State<MapScreen> {
         color: SA.card,
         shape: const CircleBorder(side: BorderSide(color: SA.border)),
         child: IconButton(
-          tooltip: _showBeacons ? 'ซ่อน beacon' : 'แสดง beacon',
+          tooltip: _showBeacons
+              ? s.tr('ซ่อน beacon', 'Hide beacons')
+              : s.tr('แสดง beacon', 'Show beacons'),
           icon: Icon(Icons.layers_outlined,
               color: _showBeacons ? SA.text : SA.muted),
           onPressed: () => setState(() => _showBeacons = !_showBeacons),
@@ -112,25 +117,35 @@ class _MapScreenState extends State<MapScreen> {
                   FloorPainter(s, route: shown, showBeacons: _showBeacons)),
         ),
         const SizedBox(height: 10),
-        const Wrap(
+        Wrap(
             spacing: 12,
             runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
-              _Legend(kind: _LegendKind.dot, color: SA.blue, label: 'คุณ'),
-              _Legend(kind: _LegendKind.dash, color: SA.teal, label: 'เส้นทาง'),
+              _Legend(
+                  kind: _LegendKind.dot,
+                  color: SA.blue,
+                  label: s.tr('คุณ', 'You')),
+              _Legend(
+                  kind: _LegendKind.dash,
+                  color: SA.teal,
+                  label: s.tr('เส้นทาง', 'Route')),
               _Legend(
                   kind: _LegendKind.square,
                   color: SA.red,
-                  label: 'จุดเกิดเหตุ'),
+                  label: s.tr('จุดเกิดเหตุ', 'Incident')),
               _Legend(
-                  kind: _LegendKind.square, color: SA.teal, label: 'ทางออก'),
-              _Legend(
+                  kind: _LegendKind.square,
+                  color: SA.teal,
+                  label: s.tr('ทางออก', 'Exit')),
+              const _Legend(
                   kind: _LegendKind.smallDot, color: SA.teal, label: 'beacon'),
             ]),
         const SizedBox(height: 6),
-        const Text('ข้อมูลแผนที่ถูกเก็บไว้ในเครื่อง ใช้งานได้เมื่อออฟไลน์',
-            style: TextStyle(color: SA.muted, fontSize: 11)),
+        Text(
+            s.tr('ข้อมูลแผนที่ถูกเก็บไว้ในเครื่อง ใช้งานได้เมื่อออฟไลน์',
+                'Map is stored on the phone, works offline'),
+            style: const TextStyle(color: SA.muted, fontSize: 11)),
       ]),
     );
   }
@@ -157,13 +172,17 @@ class _MapScreenState extends State<MapScreen> {
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(exit.label,
+              Text(s.d(exit.label),
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.w800)),
               Text(
-                'ระยะ ${o.distanceM.toStringAsFixed(0)} เมตร ใช้เวลาประมาณ $secs วินาที${o.passesSmoke ? ' · ผ่านควัน' : ''}',
+                s.tr('ระยะ ${o.distanceM.toStringAsFixed(0)} เมตร ใช้เวลาประมาณ $secs วินาที',
+                        '${o.distanceM.toStringAsFixed(0)} m · about $secs seconds') +
+                    (o.passesSmoke
+                        ? s.tr(' · ผ่านควัน', ' · through smoke')
+                        : ''),
                 style: TextStyle(
                     color: o.passesSmoke
                         ? const Color(0xFFFCD34D)
@@ -198,7 +217,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                  child: Text(steps[i].text,
+                  child: Text(s.stepText(steps[i]),
                       style:
                           const TextStyle(color: Colors.white, fontSize: 13))),
             ]),
@@ -212,8 +231,9 @@ class _MapScreenState extends State<MapScreen> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           onPressed: () => s.startNavigation(_selected),
-          child: const Text('เริ่มนำทาง',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          child: Text(s.tr('เริ่มนำทาง', 'Start navigation'),
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
         ),
       ]),
     );
@@ -231,7 +251,7 @@ class _MapScreenState extends State<MapScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
-          'เส้นทาง ${String.fromCharCode(65 + i)} · ${o.distanceM.toStringAsFixed(0)} ม.',
+          '${AppScope.of(context).tr('เส้นทาง', 'Route')} ${String.fromCharCode(65 + i)} · ${o.distanceM.toStringAsFixed(0)} ${AppScope.of(context).tr('ม.', 'm')}',
           textAlign: TextAlign.center,
           style: TextStyle(
               color: sel ? SA.navy : Colors.white,
@@ -266,12 +286,13 @@ class _MapScreenState extends State<MapScreen> {
         Expanded(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('ไม่มีเหตุการณ์ในชั้นนี้',
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+            Text(s.tr('ไม่มีเหตุการณ์ในชั้นนี้', 'No incidents on this floor'),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
             Text(
               nearest == null
-                  ? 'กำลังหาตำแหน่งจาก BLE…'
-                  : 'ทางออกใกล้สุด: ${s.floor.nodes[nearest.exitNodeId]!.label} · ${nearest.distanceM.toStringAsFixed(0)} ม.',
+                  ? s.tr('กำลังหาตำแหน่งจาก BLE…', 'Locating with BLE…')
+                  : '${s.tr('ทางออกใกล้สุด', 'Nearest exit')}: ${s.d(s.floor.nodes[nearest.exitNodeId]!.label)} · ${nearest.distanceM.toStringAsFixed(0)} ${s.tr('ม.', 'm')}',
               style: const TextStyle(color: SA.text2, fontSize: 12.5),
             ),
           ]),
@@ -293,9 +314,9 @@ class _MapScreenState extends State<MapScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('เส้นทางที่ระบบแนะนำ',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                Text(s.tr('เส้นทางที่ระบบแนะนำ', 'Suggested routes'),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 12),
                 for (var i = 0; i < plan.options.length; i++)
                   Padding(
@@ -323,12 +344,12 @@ class _MapScreenState extends State<MapScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                               child: Text(
-                                  s.floor.nodes[plan.options[i].exitNodeId]!
-                                      .label,
+                                  s.d(s.floor.nodes[plan.options[i].exitNodeId]!
+                                      .label),
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w700))),
                           Text(
-                            '${plan.options[i].distanceM.toStringAsFixed(0)} ม.${plan.options[i].passesSmoke ? ' · ผ่านควัน' : ''}',
+                            '${plan.options[i].distanceM.toStringAsFixed(0)} ${s.tr('ม.', 'm')}${plan.options[i].passesSmoke ? s.tr(' · ผ่านควัน', ' · smoke') : ''}',
                             style: TextStyle(
                                 color: plan.options[i].passesSmoke
                                     ? SA.amberDark
@@ -349,7 +370,7 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                           child: Text(
-                              '${s.floor.nodes[b]?.label ?? b} · ห้ามใช้',
+                              '${s.d(s.floor.nodes[b]?.label ?? b)} · ${s.tr('ห้ามใช้', 'do not use')}',
                               style: const TextStyle(
                                   color: SA.redDark,
                                   fontWeight: FontWeight.w700))),
@@ -382,8 +403,9 @@ class _FloorTabs extends StatelessWidget {
                   ? null
                   : () => ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text(
-                                'ยังไม่มีผังชั้น $f (ขอบเขตโปรเจกต์: ชั้น 2)')),
+                            content: Text(AppScope.of(context).tr(
+                                'ยังไม่มีผังชั้น $f (ขอบเขตโปรเจกต์: ชั้น 2)',
+                                'No map for floor $f yet (project scope: floor 2)'))),
                       ),
               child: Container(
                 height: 38,
@@ -392,7 +414,7 @@ class _FloorTabs extends StatelessWidget {
                     color: f == current ? SA.navy : Colors.transparent,
                     borderRadius: BorderRadius.circular(12)),
                 child: Stack(clipBehavior: Clip.none, children: [
-                  Text('ชั้น $f',
+                  Text(AppScope.of(context).tr('ชั้น $f', 'Floor $f'),
                       style: TextStyle(
                           color: f == current ? Colors.white : SA.text,
                           fontWeight: FontWeight.w700,
@@ -427,12 +449,12 @@ class _IncidentBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final what = switch (s.incident) {
-      IncidentMode.fire => 'ไฟไหม้',
-      IncidentMode.gas => 'แก๊สรั่ว',
-      IncidentMode.quake => 'แผ่นดินไหว',
+      IncidentMode.fire => s.tr('ไฟไหม้', 'Fire in'),
+      IncidentMode.gas => s.tr('แก๊สรั่ว', 'Gas leak in'),
+      IncidentMode.quake => s.tr('แผ่นดินไหว', 'Earthquake'),
       IncidentMode.none => '',
     };
-    final where = s.floor.zones[s.incidentZoneId]?.name ?? '';
+    final where = s.d(s.floor.zones[s.incidentZoneId]?.name ?? '');
     return Material(
       color: const Color(0xFFFFF1F1),
       borderRadius: BorderRadius.circular(16),
@@ -458,15 +480,16 @@ class _IncidentBanner extends StatelessWidget {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('$what $where ${s.floor.label}',
+                    Text('$what $where · ${s.d(s.floor.label)}',
                         style: const TextStyle(
                             color: SA.redDark,
                             fontWeight: FontWeight.w800,
                             fontSize: 15)),
                     Text(
                         exitLabel == null
-                            ? 'ห้ามใช้ลิฟต์'
-                            : 'ออกทาง${exitLabel}ทันที · ห้ามใช้ลิฟต์',
+                            ? s.tr('ห้ามใช้ลิฟต์', 'Do not use the lift')
+                            : s.tr('ออกทาง${exitLabel}ทันที · ห้ามใช้ลิฟต์',
+                                'Leave via $exitLabel now · do not use the lift'),
                         style: const TextStyle(color: SA.red, fontSize: 12.5)),
                   ]),
             ),
@@ -504,8 +527,10 @@ class _StepBanner extends StatelessWidget {
         Expanded(
           child: Text(
             s.arrived
-                ? 'ถึง${s.floor.nodes[s.route!.exitNodeId]!.label}แล้ว'
-                : (step?.text ?? ''),
+                ? s.tr(
+                    'ถึง${s.d(s.floor.nodes[s.route!.exitNodeId]!.label)}แล้ว',
+                    'You reached ${s.d(s.floor.nodes[s.route!.exitNodeId]!.label)}')
+                : (step == null ? '' : s.stepText(step)),
             style: const TextStyle(
                 color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800),
           ),
@@ -528,13 +553,14 @@ class _NavCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(
           s.arrived
-              ? 'ถึงทางออกแล้ว'
-              : 'เหลือ ${s.remainingMeters.toStringAsFixed(0)} เมตร',
+              ? s.tr('ถึงทางออกแล้ว', 'You reached the exit')
+              : s.tr('เหลือ ${s.remainingMeters.toStringAsFixed(0)} เมตร',
+                  '${s.remainingMeters.toStringAsFixed(0)} m to go'),
           style: const TextStyle(
               color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
         ),
         Text(
-            'ขั้นที่ ${s.stepIndex + 1}/${s.steps.length} · ${s.floor.nodes[s.route!.exitNodeId]!.label}',
+            '${s.tr('ขั้นที่', 'Step')} ${s.stepIndex + 1}/${s.steps.length} · ${s.d(s.floor.nodes[s.route!.exitNodeId]!.label)}',
             style: const TextStyle(color: Color(0xCCFFFFFF), fontSize: 12.5)),
         const SizedBox(height: 14),
         if (s.arrived)
@@ -543,8 +569,9 @@ class _NavCard extends StatelessWidget {
                 backgroundColor: SA.green,
                 minimumSize: const Size.fromHeight(50)),
             onPressed: s.imSafe,
-            child: const Text('ฉันปลอดภัย',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            child: Text(s.tr('ฉันปลอดภัย', 'I’m safe'),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
           )
         else
           OutlinedButton(
@@ -554,7 +581,7 @@ class _NavCard extends StatelessWidget {
               minimumSize: const Size.fromHeight(46),
             ),
             onPressed: s.stopNavigation,
-            child: const Text('หยุดนำทาง'),
+            child: Text(s.tr('หยุดนำทาง', 'Stop navigation')),
           ),
       ]),
     );
@@ -697,7 +724,8 @@ class FloorPainter extends CustomPainter {
       }
       canvas.restore();
       canvas.drawRRect(rr, border..color = const Color(0xFFDDE3EA));
-      _text(canvas, 'โถงกลาง', cr.center, cr.width, 10.5, SA.muted);
+      _text(canvas, s.tr('โถงกลาง', 'Corridor'), cr.center, cr.width, 10.5,
+          SA.muted);
     }
 
     // rooms, stairs, lift
@@ -706,13 +734,14 @@ class FloorPainter extends CustomPainter {
       final r = rectOf(z).deflate(2.5);
       final rr = RRect.fromRectAndRadius(r, const Radius.circular(6));
       Color fill = SA.card, line = const Color(0xFFDDE3EA), label = SA.text;
-      var name = z.name;
+      var name = s.d(z.name);
       if (z.type == 'stairs') {
         final chosen = z.id == exitZoneId;
         fill = chosen ? SA.teal : SA.tealLight;
         line = SA.teal;
         label = chosen ? Colors.white : SA.teal;
-        if (chosen) name = 'ทางออก ${z.name.split(' ').last}';
+        if (chosen)
+          name = '${s.tr('ทางออก', 'Exit')} ${z.name.split(' ').last}';
       } else if (z.type == 'lift' && incidentOn) {
         fill = SA.redLight;
         line = SA.red;

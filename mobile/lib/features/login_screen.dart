@@ -18,34 +18,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController(text: 'u6587xxx@student.mahidol.ac.th');
   final _password = TextEditingController(text: '••••••••');
 
-  static const _roles = [
-    (
-      UserRole.student,
-      'นักศึกษา / บุคลากร',
-      'รับแจ้งเตือน รายงานเหตุ และอพยพ',
-      Icons.person,
-      SA.blue,
-      SA.blueLight
-    ),
-    (
-      UserRole.security,
-      'เจ้าหน้าที่ความปลอดภัย',
-      'ติดตามและตอบสนองเหตุการณ์',
-      Icons.shield,
-      SA.teal,
-      SA.tealLight
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final s = AppScope.of(context);
+    final t = s.tr;
+    final roles = [
+      (
+        UserRole.student,
+        t('นักศึกษา / บุคลากร', 'Student / Staff'),
+        t('รับแจ้งเตือน รายงานเหตุ และอพยพ',
+            'Get alerts, report incidents, evacuate'),
+        Icons.person,
+        SA.blue,
+        SA.blueLight
+      ),
+      (
+        UserRole.security,
+        t('เจ้าหน้าที่ความปลอดภัย', 'Safety officer'),
+        t('ติดตามและตอบสนองเหตุการณ์', 'Monitor and respond to incidents'),
+        Icons.shield,
+        SA.teal,
+        SA.tealLight
+      ),
+    ];
     return Scaffold(
       backgroundColor: SA.navy,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            const SizedBox(height: 24),
+            Align(alignment: Alignment.centerRight, child: _LangToggle(s: s)),
             const Icon(Icons.verified_user, color: Colors.white, size: 56),
             const SizedBox(height: 12),
             const Text('SafeAlert ICT',
@@ -54,9 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                     fontSize: 30,
                     fontWeight: FontWeight.w800)),
-            const Text('แจ้งเตือนภัยในอาคารแบบเรียลไทม์',
+            Text(
+                t('แจ้งเตือนภัยในอาคารแบบเรียลไทม์',
+                    'Real-time indoor safety alerts'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFFBFD3E6), fontSize: 14)),
+                style: const TextStyle(color: Color(0xFFBFD3E6), fontSize: 14)),
             const SizedBox(height: 28),
             Container(
               padding: const EdgeInsets.all(20),
@@ -65,10 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('ยินดีต้อนรับ',
+                  Text(t('ยินดีต้อนรับ', 'Welcome'),
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 16),
                   TextField(
                       controller: _email,
@@ -84,14 +88,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   FilledButton(
                     style: FilledButton.styleFrom(backgroundColor: SA.navy),
                     onPressed: _login,
-                    child: const Text('เข้าสู่ระบบ'),
+                    child: Text(t('เข้าสู่ระบบ', 'Log in')),
                   ),
                   const SizedBox(height: 16),
-                  const Text('เลือกบทบาทของคุณ',
+                  Text(t('เลือกบทบาทของคุณ', 'Choose your role'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: SA.muted)),
+                      style: const TextStyle(color: SA.muted)),
                   const SizedBox(height: 8),
-                  for (final r in _roles) _roleCard(r),
+                  for (final r in roles) _roleCard(r),
                 ],
               ),
             ),
@@ -140,14 +144,52 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() {
+  Future<void> _login() async {
+    final en = AppScope.of(context).lang == 'en';
     final name = switch (_role) {
-      UserRole.student => 'ภคินธร',
-      UserRole.security => 'ปิติ',
-      UserRole.admin => 'ปิติ'
+      UserRole.student => en ? 'Pakinthorn' : 'ภคินธร',
+      UserRole.security || UserRole.admin => en ? 'Piti' : 'ปิติ',
     };
-    AppScope.of(context).login(_role, name);
+    await AppScope.of(context).login(_role, name, email: _email.text.trim());
+    if (!mounted) return;
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => const HomeShell()));
+  }
+}
+
+/// ไทย | EN switch on the login screen (saved to the profile when the user logs in).
+class _LangToggle extends StatelessWidget {
+  const _LangToggle({required this.s});
+  final AppState s;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget item(String code, String label) {
+      final on = s.lang == code;
+      return GestureDetector(
+        onTap: () => s.setLanguageLocal(code),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+              color: on ? Colors.white : Colors.transparent,
+              borderRadius: BorderRadius.circular(16)),
+          child: Text(label,
+              style: TextStyle(
+                  color: on ? SA.navy : Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13)),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0x66FFFFFF))),
+      child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [item('th', 'ไทย'), item('en', 'EN')]),
+    );
   }
 }

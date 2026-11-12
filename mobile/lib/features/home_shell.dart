@@ -29,7 +29,9 @@ class _HomeShellState extends State<HomeShell> {
       NotificationsScreen(onOpenMap: () => setState(() => _tab = 1)),
       const MoreScreen(),
     ];
-    final unread = AppScope.of(context).unreadCount;
+    final app = AppScope.of(context);
+    final unread = app.unreadCount;
+    final t = app.tr;
     return Scaffold(
       body: SafeArea(child: IndexedStack(index: _tab, children: pages)),
       bottomNavigationBar: NavigationBar(
@@ -44,23 +46,23 @@ class _HomeShellState extends State<HomeShell> {
           }
         },
         destinations: [
-          const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'หน้าหลัก'),
-          const NavigationDestination(
-              icon: Icon(Icons.map_outlined),
-              selectedIcon: Icon(Icons.map),
-              label: 'แผนที่'),
-          const NavigationDestination(
-              icon: CircleAvatar(
+          NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home),
+              label: t('หน้าหลัก', 'Home')),
+          NavigationDestination(
+              icon: const Icon(Icons.map_outlined),
+              selectedIcon: const Icon(Icons.map),
+              label: t('แผนที่', 'Map')),
+          NavigationDestination(
+              icon: const CircleAvatar(
                   backgroundColor: SA.red,
                   child: Text('SOS',
                       style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
                           fontSize: 12))),
-              label: 'ฉุกเฉิน'),
+              label: t('ฉุกเฉิน', 'SOS')),
           NavigationDestination(
             icon: Badge(
               isLabelVisible: unread > 0,
@@ -68,10 +70,10 @@ class _HomeShellState extends State<HomeShell> {
               child: const Icon(Icons.notifications_outlined),
             ),
             selectedIcon: const Icon(Icons.notifications),
-            label: 'แจ้งเตือน',
+            label: t('แจ้งเตือน', 'Alerts'),
           ),
-          const NavigationDestination(
-              icon: Icon(Icons.menu), label: 'เพิ่มเติม'),
+          NavigationDestination(
+              icon: const Icon(Icons.menu), label: t('เพิ่มเติม', 'More')),
         ],
       ),
     );
@@ -79,20 +81,22 @@ class _HomeShellState extends State<HomeShell> {
 
   /// Page 10: SOS goes into ACK_OUTBOX (sent first) with the current zone.
   Future<void> _sos(BuildContext context) async {
+    final app = AppScope.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('ส่ง SOS?'),
-        content: const Text('ระบบจะส่งตำแหน่งของคุณให้เจ้าหน้าที่ทันที'),
+        title: Text(app.tr('ส่ง SOS?', 'Send SOS?')),
+        content: Text(app.tr('ระบบจะส่งตำแหน่งของคุณให้เจ้าหน้าที่ทันที',
+            'Your location will be sent to the safety staff right away.')),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(c, false),
-              child: const Text('ยกเลิก')),
+              child: Text(app.tr('ยกเลิก', 'Cancel'))),
           FilledButton(
               style: FilledButton.styleFrom(
                   backgroundColor: SA.red, minimumSize: const Size(100, 44)),
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('ส่ง SOS')),
+              child: Text(app.tr('ส่ง SOS', 'Send SOS'))),
         ],
       ),
     );
@@ -100,7 +104,7 @@ class _HomeShellState extends State<HomeShell> {
     final s = AppScope.of(context);
     await s.sos();
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('ส่ง SOS แล้ว · ${s.zoneName}')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${s.tr('ส่ง SOS แล้ว', 'SOS sent')} · ${s.zoneName}')));
   }
 }

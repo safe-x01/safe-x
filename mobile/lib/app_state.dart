@@ -5,11 +5,13 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'ble/beacon_scanner.dart';
 import 'core/config.dart';
+import 'core/i18n.dart';
 import 'data/db/app_database.dart';
 import 'data/models.dart';
 import 'data/repositories/map_repository.dart';
 import 'data/repositories/notification_repository.dart';
 import 'data/repositories/outbox_repository.dart';
+import 'data/repositories/profile_repository.dart';
 import 'navigation/route_planner.dart';
 import 'positioning/positioning_engine.dart';
 import 'sync/sync_service.dart';
@@ -40,6 +42,51 @@ class AppState extends ChangeNotifier {
 
   UserRole role = UserRole.student;
   String displayName = 'ผู้ใช้';
+  String email = '';
+  String employeeCode = '';
+  String? phone;
+  String? emergencyContact;
+
+  // settings (LOCAL_PROFILE), changed on page 08
+  late ProfileRepository profiles;
+  String lang = 'th'; // th / en
+  bool bleEnabled = true;
+  bool alertSound = true;
+
+  /// Profile tiles: reports sent / reports confirmed / evacuations finished.
+  (int, int, int) stats = (0, 0, 0);
+  Future<void> refreshStats() async {
+    stats = await profiles.stats();
+    notifyListeners();
+  }
+
+  /// Picks the text for the current language: tr('หน้าหลัก', 'Home').
+  String tr(String th, String en) => lang == 'en' ? en : th;
+
+  /// Same for text that comes from data (zone names, notifications): ไทย -> English via core/i18n.dart.
+  String d(String th) => lang == 'en' ? translateData(th) : th;
+
+  /// Language can also be picked on the login screen, before anyone is logged in.
+  void setLanguageLocal(String l) {
+    lang = l;
+    notifyListeners();
+  }
+
+  /// One navigation step as text in the current language (the planner keeps turn / metres / node).
+  String stepText(NavStep st) {
+    final m = st.meters.round();
+    final at = d(floor.nodes[st.atNodeId]?.label ?? st.atNodeId);
+    if (st.turn == 'arrive')
+      return tr('เดินต่อ $m ม. ถึง$at', 'Walk $m m to $at');
+    if (st.turn == 'left')
+      return tr('เดิน $m ม. แล้วเลี้ยวซ้ายที่$at',
+          'Walk $m m, then turn left at $at');
+    if (st.turn == 'right')
+      return tr('เดิน $m ม. แล้วเลี้ยวขวาที่$at',
+          'Walk $m m, then turn right at $at');
+    return d(st.text);
+  }
+
   ScanMode mode = ScanMode.normal;
   LocationFix? fix;
   DateTime? _lastHeard;
@@ -63,6 +110,7 @@ class AppState extends ChangeNotifier {
         AppState._(db, MapRepository(db), outbox, SyncService(db, outbox));
     await s._loadFloor();
     s.notices = NotificationRepository(db);
+    s.profiles = ProfileRepository(db);
     if (AppConfig.useSimulatedBeacons) await s.notices.resetDemo();
     s.inbox = await s.notices.all();
     return s;
@@ -92,11 +140,54 @@ class AppState extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------- login
-  void login(UserRole r, String name) {
+  Future<void> login(UserRole r, String name, {String email = ''}) async {
     role = r;
     displayName = name;
+    this.email = email;
+    final p = await profiles.loadOrCreate(
+        userId: email.isEmpty ? name : email,
+        displayName: name,
+        role: r.name,
+        email: email);
+    employeeCode = p['employee_code'] as String;
+    phone = p['phone'] as String?;
+    emergencyContact = p['emergency_contact'] as String?;
+    // the language chosen on the login screen wins and is saved for next time
+    await profiles.update(email.isEmpty ? name : email, {'language': lang});
+    bleEnabled = p['ble_enabled'] == 1;
+    alertSound = p['alert_sound'] == 1;
+    stats = await profiles.stats();
     notifyListeners();
-    startScanning();
+    if (bleEnabled) await startScanning();
+  }
+
+  String get _userId => email.isEmpty ? displayName : email;
+
+  Future<void> setLanguage(String l) async {
+    lang = l;
+    await profiles.update(_userId, {'language': l});
+    notifyListeners();
+  }
+
+  Future<void> setAlertSound(bool on) async {
+    alertSound = on;
+    await profiles.update(_userId, {'alert_sound': on ? 1 : 0});
+    notifyListeners();
+  }
+
+  /// Turning BLE off stops scanning; the location card then shows "กำลังหา beacon".
+  Future<void> setBleEnabled(bool on) async {
+    bleEnabled = on;
+    await profiles.update(_userId, {'ble_enabled': on ? 1 : 0});
+    if (on) {
+      await startScanning(fast: mode != ScanMode.normal);
+    } else {
+      await _scanSub?.cancel();
+      _scanSub = null;
+      await scanner.stop();
+      fix = null;
+    }
+    notifyListeners();
   }
 
   /// Figma has 2 roles: user and เจ้าหน้าที่ความปลอดภัย; the staff role uses the admin screens (ad02-ad14).
@@ -127,6 +218,7 @@ class AppState extends ChangeNotifier {
     _lastHeard = null;
     role = UserRole.student;
     displayName = 'ผู้ใช้';
+    email = '';
     if (AppConfig.useSimulatedBeacons) await notices.resetDemo();
     inbox = await notices.all();
     notifyListeners();
@@ -169,8 +261,8 @@ class AppState extends ChangeNotifier {
       DateTime.now().difference(_lastHeard!) > const Duration(seconds: 5);
 
   String get zoneName => fix == null
-      ? 'กำลังหาตำแหน่ง…'
-      : (floor.zones[fix!.zoneId]?.name ?? fix!.zoneId);
+      ? tr('กำลังหาตำแหน่ง…', 'Locating…')
+      : d(floor.zones[fix!.zoneId]?.name ?? fix!.zoneId);
 
   // ---------------------------------------------------------------- incident
   /// Demo button / push handler: "ไฟไหม้ห้อง 203, ควันในโถงหน้าห้อง 203".
@@ -314,6 +406,7 @@ class AppState extends ChangeNotifier {
   Future<void> imSafe() async {
     await outbox.addAck(ackStatus: 'safe', zoneId: fix?.zoneId);
     unawaited(sync.pushOutbox());
+    unawaited(refreshStats());
     stopNavigation();
   }
 
@@ -341,6 +434,7 @@ class AppState extends ChangeNotifier {
       posY: fix?.pos.y,
     );
     unawaited(sync.pushOutbox());
+    unawaited(refreshStats());
     return id;
   }
 
