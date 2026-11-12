@@ -434,7 +434,11 @@ class AppState extends ChangeNotifier {
     stopNavigation();
   }
 
+  /// When the last SOS was sent (page 10 shows it); null after "ยกเลิก SOS".
+  DateTime? sosSentAt;
+
   Future<void> sos({String? message}) async {
+    sosSentAt = DateTime.now();
     await outbox.addAck(
         ackStatus: 'sos', zoneId: fix?.zoneId, message: message);
     unawaited(sync.pushOutbox());
@@ -445,14 +449,29 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> sendReport(
-      {required String type,
-      required String severity,
-      String? description}) async {
+  /// Page 10 "ยกเลิก SOS": tells the server it was a mistake (the outbox sends it after the SOS row).
+  Future<void> cancelSos() async {
+    sosSentAt = null;
+    await outbox.addAck(ackStatus: 'cancel_sos', zoneId: fix?.zoneId);
+    unawaited(sync.pushOutbox());
+    if (incident == IncidentMode.none && mode == ScanMode.incident) {
+      mode = ScanMode.normal;
+      await startScanning();
+    }
+    notifyListeners();
+  }
+
+  Future<String> sendReport({
+    required String type,
+    required String severity,
+    String? description,
+    List<String> photoPaths = const [],
+  }) async {
     final id = await outbox.addReport(
       reportType: type,
       severity: severity,
       description: description,
+      photoPaths: photoPaths,
       zoneId: fix?.zoneId,
       posX: fix?.pos.x,
       posY: fix?.pos.y,

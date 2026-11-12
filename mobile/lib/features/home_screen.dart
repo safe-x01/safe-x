@@ -4,6 +4,8 @@ import '../app_state.dart';
 import '../core/theme.dart';
 import '../main.dart';
 import '../navigation/route_planner.dart';
+import 'report_screen.dart';
+import 'sos_screen.dart';
 
 /// Page 02 (user) / ad02 (admin). Same layout as the Figma screen.
 class HomeScreen extends StatelessWidget {
@@ -33,12 +35,12 @@ class HomeScreen extends StatelessWidget {
         _IncidentCounts(s: s),
         const SizedBox(height: 12),
         Row(children: [
-          Expanded(child: _SosCard(s: s)),
+          Expanded(child: _SosCard(s: s, onOpenMap: onOpenMap)),
           const SizedBox(width: 12),
           Expanded(
               child: _ReportCard(
-                  onTap: () => _todo(
-                      context, s, t('หน้า 04 รายงานเหตุ', 'Page 04 Report')))),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const ReportScreen())))),
         ]),
         const SizedBox(height: 12),
         Row(children: [
@@ -102,11 +104,6 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
-
-  static void _todo(BuildContext context, AppState s, String what) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text('$what ${s.tr('ยังไม่ได้เขียน', 'is not built yet')}')));
 
   static void _emergencyNumbers(BuildContext context, AppState s) =>
       showModalBottomSheet<void>(
@@ -429,8 +426,9 @@ class _CountTile extends StatelessWidget {
 
 // ---------------------------------------------------------------- big action cards
 class _SosCard extends StatelessWidget {
-  const _SosCard({required this.s});
+  const _SosCard({required this.s, required this.onOpenMap});
   final AppState s;
+  final VoidCallback onOpenMap;
 
   @override
   Widget build(BuildContext context) {
@@ -439,21 +437,21 @@ class _SosCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(s.tr('กดค้าง 3 วินาทีเพื่อส่ง SOS',
-                'Hold for 3 seconds to send SOS')))),
-        onLongPress: () async {
+        // page 10: send SOS, then show the overlay (it has "ยกเลิก SOS" in case of a mistaken tap)
+        onTap: () async {
           await s.sos();
           if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content:
-                  Text('${s.tr('ส่ง SOS แล้ว', 'SOS sent')} · ${s.zoneName}')));
+          final goMap = await Navigator.of(context)
+              .push<bool>(MaterialPageRoute(builder: (_) => const SosScreen()));
+          if (goMap == true) {
+            s.replan();
+            onOpenMap();
+          }
         },
         child: _BigCardBody(
             icon: Icons.notifications_active_outlined,
             title: s.tr('SOS ฉุกเฉิน', 'Emergency SOS'),
-            sub: s.tr('กดค้าง 3 วินาทีเพื่อขอช่วย',
-                'Hold 3 seconds to ask for help')),
+            sub: s.tr('กดเพื่อขอความช่วยเหลือ', 'Tap to ask for help')),
       ),
     );
   }

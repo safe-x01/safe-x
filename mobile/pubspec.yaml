@@ -19,6 +19,8 @@ dependencies:
   http: ^1.2.2
   uuid: ^4.4.2
   flutter_secure_storage: ^9.2.2
+  # page 04: take or pick a photo for a report
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

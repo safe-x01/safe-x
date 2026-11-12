@@ -6,6 +6,7 @@ import 'home_screen.dart';
 import 'map_screen.dart';
 import 'more_screen.dart';
 import 'notifications_screen.dart';
+import 'report_screen.dart';
 
 /// Bottom bar shared by user and admin: หน้าหลัก · แผนที่ · SOS · แจ้งเตือน · เพิ่มเติม.
 class HomeShell extends StatefulWidget {
@@ -40,7 +41,9 @@ class _HomeShellState extends State<HomeShell> {
         indicatorColor: SA.blueLight,
         onDestinationSelected: (i) {
           if (i == 2) {
-            _sos(context);
+            // centre button opens page 04 (รายงานเหตุการณ์); a direct SOS is the long-press card on the home screen
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const ReportScreen()));
           } else {
             setState(() => _tab = i);
           }
@@ -77,34 +80,5 @@ class _HomeShellState extends State<HomeShell> {
         ],
       ),
     );
-  }
-
-  /// Page 10: SOS goes into ACK_OUTBOX (sent first) with the current zone.
-  Future<void> _sos(BuildContext context) async {
-    final app = AppScope.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text(app.tr('ส่ง SOS?', 'Send SOS?')),
-        content: Text(app.tr('ระบบจะส่งตำแหน่งของคุณให้เจ้าหน้าที่ทันที',
-            'Your location will be sent to the safety staff right away.')),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c, false),
-              child: Text(app.tr('ยกเลิก', 'Cancel'))),
-          FilledButton(
-              style: FilledButton.styleFrom(
-                  backgroundColor: SA.red, minimumSize: const Size(100, 44)),
-              onPressed: () => Navigator.pop(c, true),
-              child: Text(app.tr('ส่ง SOS', 'Send SOS'))),
-        ],
-      ),
-    );
-    if (ok != true || !context.mounted) return;
-    final s = AppScope.of(context);
-    await s.sos();
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${s.tr('ส่ง SOS แล้ว', 'SOS sent')} · ${s.zoneName}')));
   }
 }
